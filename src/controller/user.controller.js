@@ -4,7 +4,7 @@ import { userModel } from "../model/user.model.js";
 import { generateToken } from "../utils/jwt.utils.js";
 
 export const createUser = async (req, res) => {
-  const { username, email, password } = req.body;
+  const { username, email, password, role } = req.body;
   if (!username || !email || !password) {
     return res
       .status(500)
@@ -18,6 +18,7 @@ export const createUser = async (req, res) => {
       username,
       email,
       password: hashedPassword,
+      role
     });
     if (!user) {
       console.error("Unable to create new user!");
