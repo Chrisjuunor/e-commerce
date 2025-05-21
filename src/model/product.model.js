@@ -14,15 +14,23 @@ const productSchema = new mongoose.Schema(
       type: Number,
       required: true,
     },
-    category: {
-      type: String,
-      enum: [
-        CATEGORIES.ELECTRONICS,
-        CATEGORIES.FASHION,
-        CATEGORIES.HOBBIES,
-        CATEGORIES.TOYS,
-      ],
+    color: {
+      type: [String],
+      default: [],
     },
+    image: {
+      type: [String],
+      default: [],
+    },
+    // category: {
+    //   type: String,
+    //   enum: [
+    //     CATEGORIES.ELECTRONICS,
+    //     CATEGORIES.FASHION,
+    //     CATEGORIES.HOBBIES,
+    //     CATEGORIES.TOYS,
+    //   ],
+    // },
   },
   { timestamps: true }
 );

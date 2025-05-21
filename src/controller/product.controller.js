@@ -2,7 +2,7 @@ import express from "express";
 import { productModel } from "../model/product.model.js";
 
 export const createProduct = async (req, res) => {
-  const { name, description, price, category } = req.body;
+  const { name, description, price, color, image } = req.body;
   if (!name || !price) {
     console.error("No name or price returned from the request body!");
     return res
@@ -15,7 +15,8 @@ export const createProduct = async (req, res) => {
       name,
       description,
       price,
-      category,
+      color,
+      image,
     });
     if (!product) {
       console.error("product not created!");
@@ -23,7 +24,9 @@ export const createProduct = async (req, res) => {
     }
 
     console.log("The product: ", product);
-    return res.status(201).json({ message: "Product added!", product });
+    return res
+      .status(201)
+      .json({ success: true, message: "Product added!", data: product });
   } catch (err) {
     console.error("Error creating new product: ", err);
     return res.status(500).json({ message: "Could not add new product!" });
@@ -41,12 +44,58 @@ export const getProductbyId = async (req, res) => {
     const product = await productModel.findOne({ _id: id });
     if (!product) {
       console.error(`Unable to get product with id ${id}`);
-      return res.status(400).json({ message: "Product not found" });
+      return res.status(404).json({ message: "Product not found" });
     }
 
-    return res.status(200).json({ message: "Product found", product });
+    return res.status(200).json({ success: true, product });
   } catch (err) {
     console.error("Error retrieving product: ", err);
     return res.status(500).json({ message: "Unable to get product!" });
+  }
+};
+
+export const updateProduct = async (req, res) => {
+  const id = req.params.id;
+  if (!id) {
+    console.error(`Product with id ${id} not found!`);
+    return res.status(400).json({ message: "Invalid product id!" });
+  }
+
+  try {
+    const { name, description, price } = req.body;
+    if (!name && !description && !price && !category) {
+      return res
+        .status(400)
+        .json({ message: "provide at least one field to update" });
+    }
+
+    const product = await productModel.findById(id);
+    if (!product) {
+      console.error(`Product with id ${id} not found!`);
+      return res.status(404).json({ message: "product not found!" });
+    }
+
+    if (name) {
+      product.name = name;
+    }
+    if (description) {
+      product.description = description;
+    }
+    if (price) {
+      product.price = price;
+    }
+    if (category) {
+      product.category = category;
+    }
+
+    const updateProduct = await product.save();
+
+    res.status(200).json({
+      message: "product updated!",
+      data: updateProduct,
+    });
+  } catch (err) {
+    console.error("Error updating product!");
+    return res.status(500).json({ message: "Unable to update product" });
   }
 };
