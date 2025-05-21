@@ -11,12 +11,13 @@ export const createProduct = async (req, res) => {
   }
 
   try {
+    const imageUrls = req.files.map((file) => file.path);
     const product = await productModel.create({
       name,
       description,
       price,
       color,
-      image,
+      image: imageUrls,
     });
     if (!product) {
       console.error("product not created!");
@@ -84,10 +85,10 @@ export const updateProduct = async (req, res) => {
     if (price) {
       product.price = price;
     }
-    if(color){
+    if (color) {
       product.color = color;
     }
-    if(image){
+    if (image) {
       product.image = image;
     }
 
