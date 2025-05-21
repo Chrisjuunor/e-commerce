@@ -1,4 +1,4 @@
-import exress from "express";
+import express from "express";
 import { verifyToken } from "../utils/jwt.utils.js";
 import { userModel } from "../model/user.model.js";
 
@@ -16,7 +16,7 @@ export const authenticateToken = async (req, res, next) => {
       return res.status(403).json({ message: "Invalid or expired token!" });
     }
 
-    const user = await userModel.findOne({email: payload.email});
+    const user = await userModel.findOne({ email: payload.email });
     if (!user) {
       return res.status(404).json({ message: "User not found!" });
     }
@@ -28,4 +28,15 @@ export const authenticateToken = async (req, res, next) => {
     console.error("Error authenticating token: ", err.message);
     return res.status(500).json({ message: "internal server error" });
   }
+};
+
+export const requireRole = (role) => {
+  return (req, res, next) => {
+    if (!req.user || req.user.role !== role) {
+      return res
+        .status(403)
+        .json({ message: "access denied. You do not have permission!" });
+    }
+    next();
+  };
 };
