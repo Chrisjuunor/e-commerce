@@ -62,8 +62,8 @@ export const updateProduct = async (req, res) => {
   }
 
   try {
-    const { name, description, price } = req.body;
-    if (!name && !description && !price && !category) {
+    const { name, description, price, color, image } = req.body;
+    if (!name && !description && !price && !color && !image) {
       return res
         .status(400)
         .json({ message: "provide at least one field to update" });
@@ -84,8 +84,11 @@ export const updateProduct = async (req, res) => {
     if (price) {
       product.price = price;
     }
-    if (category) {
-      product.category = category;
+    if(color){
+      product.color = color;
+    }
+    if(image){
+      product.image = image;
     }
 
     const updateProduct = await product.save();
@@ -97,5 +100,22 @@ export const updateProduct = async (req, res) => {
   } catch (err) {
     console.error("Error updating product!");
     return res.status(500).json({ message: "Unable to update product" });
+  }
+};
+
+export const deleteProduct = async (req, res) => {
+  const { id } = req.params;
+
+  try {
+    const removeProduct = await productModel.findByIdAndDelete(id);
+    if (!removeProduct) {
+      console.error(`No product found with id ${id}`);
+      return res.status(404).json({ message: "product not found!" });
+    }
+
+    return res.status(200).json({ message: "Product removed!" });
+  } catch (err) {
+    console.log("Error deleting product: ", err);
+    return res.status(500).json({ message: "Error deleting product!" });
   }
 };
