@@ -2,6 +2,7 @@ import express from "express";
 import {
   createProduct,
   deleteProduct,
+  getAllProducts,
   getProductbyId,
   updateProduct,
 } from "../controller/product.controller.js";
@@ -20,13 +21,18 @@ productRouter.post(
   upload.array("image", 5),
   createProduct
 );
+
 productRouter.get("/api/product/get/:id", authenticateToken, getProductbyId);
+
+productRouter.get("/api/product/get", getAllProducts);
+
 productRouter.put(
   "/api/product/update/:id",
   authenticateToken,
   requireRole("admin"),
   updateProduct
 );
+
 productRouter.delete(
   "/api/product/remove/:id",
   authenticateToken,

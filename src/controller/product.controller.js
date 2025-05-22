@@ -55,6 +55,23 @@ export const getProductbyId = async (req, res) => {
   }
 };
 
+export const getAllProducts = async (req, res) => {
+  try {
+    const products = await productModel.find();
+    if (!products || products.length === 0) {
+      console.error("No products found");
+      return res.status(404).json({ message: "No products found!" });
+    }
+
+    return res
+      .status(200)
+      .json({ success: true, message: "Products found", data: products });
+  } catch (err) {
+    console.error("Error retrieving products: ", err);
+    return res.status(500).json({ message: "Unable to get products!" });
+  }
+};
+
 export const updateProduct = async (req, res) => {
   const id = req.params.id;
   if (!id) {
