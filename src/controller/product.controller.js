@@ -57,15 +57,44 @@ export const getProductbyId = async (req, res) => {
 
 export const getAllProducts = async (req, res) => {
   try {
-    const products = await productModel.find();
+    //default page = 1; default limit = 10; q=>the object to query
+    const { page = 1, limit = 10, q } = req.query;
+
+    const query = {};
+    //if q is provided, search for the name or description fields
+    //$regex: q -> finds partial matches
+    //$option: "i" -> search is case insensitive
+    if (q) {
+      query.$or = [
+        { name: { $regex: q, $options: "i" } },
+        { description: { $regex: q, $options: "i" } },
+      ];
+    }
+
+    //count for the query(total matches found!)
+    const total = await productModel.countDocuments(query);
+
+    const products = await productModel
+      .find(query)
+      .skip((page - 1) * limit)
+      .limit(parseInt(limit));
+
     if (!products || products.length === 0) {
       console.error("No products found");
       return res.status(404).json({ message: "No products found!" });
     }
 
-    return res
-      .status(200)
-      .json({ success: true, message: "Products found", data: products });
+    return res.status(200).json({
+      success: true,
+      message: "Products found",
+      data: products,
+      pagination: {
+        total,
+        page: parseInt(page),
+        limit: parseInt(limit),
+        totalPages: Math.ceil(total / limit),
+      },
+    });
   } catch (err) {
     console.error("Error retrieving products: ", err);
     return res.status(500).json({ message: "Unable to get products!" });
