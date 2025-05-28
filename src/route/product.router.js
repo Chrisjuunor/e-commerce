@@ -6,6 +6,7 @@ import {
   getProductbyId,
   updateProduct,
 } from "../controller/product.controller.js";
+
 import {
   authenticateToken,
   requireRole,
