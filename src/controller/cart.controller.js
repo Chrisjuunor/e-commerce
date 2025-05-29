@@ -41,9 +41,28 @@ export const addToCart = async (req, res) => {
     }
 
     await cart.save();
-    return res.status(200).json({ message: "Added to cart ", cart });
+    return res.status(200).json({ message: "Added to cart ", data: cart });
   } catch (err) {
     console.error("Cart error: ", err);
     return res.status(500).json({ message: "Unable to add item to cart!" });
+  }
+};
+
+export const getCart = async (req, res) => {
+  const userId = req.user.id;
+
+  try {
+    const cart = await cartModel
+      .findOne({ userId })
+      .populate("items.productId");
+    if (!cart) {
+      console.log("Cart not found!");
+      return res.status(404).json({ message: "Cart not found!" });
+    }
+
+    return res.status(200).json({ message: "Cart found: ", data: cart });
+  } catch (err) {
+    console.error("Error getting cart: ", err);
+    return res.status(500).json({ message: "Unable to get cart!" });
   }
 };
