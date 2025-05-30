@@ -66,3 +66,31 @@ export const getCart = async (req, res) => {
     return res.status(500).json({ message: "Unable to get cart!" });
   }
 };
+
+export const removeItem = async (req, res) => {
+  const userId = req.user.id;
+  const { productId } = req.body;
+  if (!productId) {
+    console.log("Invalid product!");
+    return res.status(400).json({ message: "Invalid product!" });
+  }
+
+  try {
+    const cart = await cartModel.findOne({ userId });
+    if (!cart) {
+      console.log("Cart not found!");
+      return res.status(404).json({ message: "Cart not found!" });
+    }
+    cart.items = cart.items.filter(
+      (item) => item.productId.toString() !== productId
+    );
+
+    await cart.save();
+    return res
+      .status(200)
+      .json({ message: "Item removed from cart", data: cart });
+  } catch (err) {
+    console.error("Error removing item: ", err);
+    return res.status(500).json({ message: "Error removing item!" });
+  }
+};
