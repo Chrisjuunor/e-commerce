@@ -4,6 +4,13 @@ import { orderModel } from "../model/order.model.js";
 
 export const checkout = async (req, res) => {
   const userId = req.user.id;
+  const { shippingAddress, paymentMethod } = req.body;
+  if (!shippingAddress || !paymentMethod) {
+    console.log("Checkout details are missing!");
+    return res
+      .status(400)
+      .json({ message: "Missing required checkout details" });
+  }
 
   try {
     const cart = await cartModel
@@ -23,13 +30,20 @@ export const checkout = async (req, res) => {
       return {
         productId: item.productId._id,
         quantity: item.quantity,
+        price,
       };
     });
+
+    const paymentStatus = simulatePayment(paymentMethod, totalAmount);
 
     const order = new orderModel({
       userId,
       items: orderItems,
       totalAmount,
+      shippingAddress,
+      paymentMethod,
+      paymentStatus,
+      status: paymentStatus === "paid" ? "processing" : "pending",
     });
 
     await order.save();
@@ -46,3 +60,8 @@ export const checkout = async (req, res) => {
     return res.status(500).json({ message: "Error completing order!" });
   }
 };
+
+function simulatePayment(method, amount) {
+  console.log(`Simulating ₦${amount} payment via ${method}...`);
+  return "paid"; // temporary placeholder
+}
